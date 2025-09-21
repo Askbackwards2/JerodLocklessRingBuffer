@@ -7,10 +7,11 @@
 #include <atomic>
 #include <cstdint>
 
+template <typename T>
 class RingBuffer
 {
 public:
-    RingBuffer();
+    RingBuffer(const std::uint32_t size);
     ~RingBuffer();
 
     RingBuffer(const RingBuffer& other) = delete;   // Copy Constructor
@@ -18,8 +19,8 @@ public:
     RingBuffer(RingBuffer&& other); // Move Constructor
     RingBuffer& operator=(RingBuffer&& other); // Move Assignment
 
-    void Append();
-    void PopBack();
+    bool Append(T& item);
+    T* PopBack();
 
 private:
 
@@ -27,12 +28,11 @@ private:
 public:
 
 private:
-    void* m_data{nullptr};  // Chunck of contiguous memory
+    T* m_data{nullptr};  // Chunk of contiguous memory
     std::atomic<std::uint32_t> m_readIndex{0};
     std::atomic<std::uint32_t> m_writeIndex{0};
 
-    std::uint32_t m_totalIndexes{0};
-    std::uint32_t m_chunkSize{0};
+    const std::uint32_t m_totalIndexes;
 };
 
 #endif
