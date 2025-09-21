@@ -6,26 +6,16 @@
 
 #include <atomic>
 #include <cstdint>
+#include <string>
+#include <sstream>
 
 template <typename T>
 class RingBuffer
 {
 public:
-    RingBuffer(const std::uint32_t size);
-    ~RingBuffer();
 
     RingBuffer(const RingBuffer& other) = delete;   // Copy Constructor
     RingBuffer& operator=(const RingBuffer& other) = delete;    // Copy Assignment
-    RingBuffer(RingBuffer&& other); // Move Constructor
-    RingBuffer& operator=(RingBuffer&& other); // Move Assignment
-
-    bool Append(T& item);
-    T* PopBack();
-
-private:
-
-
-public:
 
 private:
     T* m_data{nullptr};  // Chunk of contiguous memory
@@ -33,6 +23,73 @@ private:
     std::atomic<std::uint32_t> m_writeIndex{0};
 
     const std::uint32_t m_totalIndexes;
+
+// Template member function definitions
+public:
+    RingBuffer(const std::uint32_t size) : m_totalIndexes(size)
+    {
+        m_data = new T[size];
+    }
+
+    ~RingBuffer()
+    {
+        delete[] m_data;
+    }
+
+    RingBuffer(RingBuffer<T>&& other)
+    {
+        // TODO: move constructor implementation
+    }
+
+    RingBuffer<T>& operator=(RingBuffer<T>&& other)
+    {
+        // TODO: move assignment implementation
+        return *this;
+    }
+
+    bool Append(T&& item)
+    {
+        if (m_writeIndex >= m_totalIndexes)
+        {
+            m_writeIndex.store(0);
+        }
+        if (m_writeIndex == m_readIndex-1)
+        {
+            return false;
+        }
+        std::uint32_t thisIndex = m_writeIndex.fetch_add(1);
+        m_data[thisIndex] = item;
+        return true;
+    }
+
+    bool PopBack(T* outVal)
+    {
+        if (!outVal)
+        {
+            printf("Invalid outValue given to RingBuffer");
+            return false;
+        }
+        if (m_readIndex >= m_totalIndexes)
+        {
+            m_readIndex.store(0);
+        }
+        if (m_readIndex == m_writeIndex)
+        {
+            return false;
+        }
+        std::uint32_t thisIndex = m_readIndex.fetch_add(1);
+        *outVal = m_data[thisIndex];
+        return true;
+    }
+
+    std::string GetStateString()
+    {
+        std::stringstream ss;
+        ss << "Read Index: " << m_readIndex.load() << std::endl;
+        ss << "Write Index: " << m_writeIndex.load() << std::endl;
+        ss << "Total Indices: " << m_totalIndexes << std::endl;
+        return ss.str();
+    }
 };
 
 #endif
