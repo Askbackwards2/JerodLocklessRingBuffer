@@ -82,6 +82,16 @@ public:
         return true;
     }
 
+    std::size_t GetSize()
+    {
+        std::size_t size = m_writeIndex - m_readIndex;
+        if (size < 0)
+        {
+            size = m_totalIndexes - size;
+        }
+        return size;
+    }
+
     std::string GetStateString()
     {
         std::stringstream ss;
