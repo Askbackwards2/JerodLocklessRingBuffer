@@ -3,4 +3,8 @@ project(JerodLocklessRingBuffer)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(JerodLocklessRingBuffer src/main.cpp)
+# Add test executable
+add_executable(RingBufferTestRun src/RingBufferTest.cpp)
+
+enable_testing()
+add_test(NAME RingBufferTest COMMAND RingBufferTestRun)
