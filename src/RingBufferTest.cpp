@@ -49,6 +49,23 @@ public:
         assert(buffer.PopBack(&out));
         assert(!buffer.PopBack(&out));
     }
+
+    static void TestCustomObject()
+    {
+        std::cout << "Custom Object Start" << std::endl;
+        struct CustomStruct 
+        {
+            std::string item1{"Stuff"};
+            int item2{12};
+        };
+        RingBuffer<CustomStruct> buffer(3);
+        CustomStruct struct1;
+        assert(buffer.Append(std::move(struct1)));
+        CustomStruct outStruct;
+        assert(buffer.PopBack(&outStruct));
+        assert(outStruct.item1 == "item1");
+        assert(outStruct.item2 == 12);
+    }
 };
 
 int main()

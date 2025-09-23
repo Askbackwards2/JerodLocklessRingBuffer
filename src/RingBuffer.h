@@ -53,7 +53,7 @@ public:
         {
             m_writeIndex.store(0);
         }
-        if (m_writeIndex == m_readIndex-1)
+        if (m_writeIndex == (m_readIndex == 0 ? m_totalIndexes-1 : m_readIndex-1))
         {
             return false;
         }
